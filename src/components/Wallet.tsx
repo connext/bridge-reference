@@ -1,5 +1,4 @@
-import React from 'react';
-import { useState, useEffect, useCallback } from 'react';
+import React, { ReactElement, useState, useEffect, useCallback } from 'react';
 
 import Web3Modal, { IProviderOptions } from 'web3modal';
 import WalletConnectProvider from '@walletconnect/web3-provider';
@@ -90,15 +89,15 @@ const chainIdToNetwork = (chain_id: string) => {
 let web3Modal: Web3Modal;
 
 interface Props {
-    chainIdToConnect: string;
-    main: string;
-    hidden: string;
-    disabled: boolean;
-    buttonConnectTitle: string;
-    buttonConnectClassName: string;
-    buttonDisconnectTitle: string;
-    buttonDisconnectClassName: string;
-    onChangeNetwork: () => void;
+    chainIdToConnect?: string;
+    main?: boolean;
+    hidden?: string;
+    disabled?: boolean;
+    buttonConnectTitle?: string;
+    buttonConnectClassName?: string;
+    buttonDisconnectTitle?: ReactElement;
+    buttonDisconnectClassName?: string;
+    onChangeNetwork?: () => void;
 }
 
 export const Wallet = ({
@@ -295,7 +294,7 @@ export const Wallet = ({
     }, [provider, disconnect]);
 
     return (
-        !hidden && (
+        (!hidden && (
             <>
                 {web3_provider ? (
                     !main && chainIdToConnect ? (
@@ -321,7 +320,7 @@ export const Wallet = ({
                             onClick={() => disconnect()}
                             className={
                                 buttonDisconnectClassName ||
-                                'bg-gray-100 hover:bg-gray-200 dark:bg-red-600 dark:hover:bg-red-700 rounded-lg font-medium py-1 px-2'
+                                'text-white bg-gray-100 hover:bg-gray-200 dark:bg-red-600 dark:hover:bg-red-700 rounded-lg font-medium py-1 px-2'
                             }
                         >
                             {buttonDisconnectTitle || 'Disconnect'}
@@ -346,6 +345,7 @@ export const Wallet = ({
                     </button>
                 )}
             </>
-        )
+        )) ||
+        null
     );
 };
