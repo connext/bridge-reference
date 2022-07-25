@@ -140,7 +140,7 @@ export const Wallet = ({
                 providerOptions['custom-clover'] = {
                     display: {
                         name: 'Clover',
-                        logo: '/logos/wallets/clover.png'
+                        logo: '/logos/wallets/clover.png' // todo: add logo
                     },
                     package: async () => {
                         let provider = null;
@@ -240,7 +240,7 @@ export const Wallet = ({
                     try {
                         await provider.request({
                             method: 'wallet_addEthereumChain',
-                            params: chains?.find(c => c.chain_id === chainIdToConnect)?.provider_params
+                            params: chains?.find(c => c.chain_id.toString() === chainIdToConnect)?.provider_params
                         });
                     } catch (error) {}
                 }

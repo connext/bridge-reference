@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useEffect } from 'react';
 
 import connextLogo from 'url:../../public/connext-white-logo.webp';
 import { useWallet } from '../contexts/Wallet';
