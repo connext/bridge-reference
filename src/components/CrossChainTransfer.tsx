@@ -1,6 +1,4 @@
-import * as React from 'react';
-import { BsArrowRight } from 'react-icons/bs';
-import { MdKeyboardArrowDown } from 'react-icons/md';
+import React from 'react';
 import { TransferButton } from './TransferButton';
 
 import connextLogo from 'url:../../public/connext-white-logo.webp';
