@@ -9,9 +9,10 @@ export interface Asset {
 }
 
 export interface Contract {
-    contract_address: string;
-    chain_id: number;
-    contract_decimals: number;
+    contract_address?: string;
+    chain_id?: number;
+    contract_decimals?: number;
+    symbol?: string;
 }
 
 export const getAssets: () => Asset[] = () => testnet_assets;
