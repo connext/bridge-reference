@@ -1,13 +1,96 @@
 import React, { useEffect } from 'react';
 
+import { create, NxtpSdkConfig } from '@connext/nxtp-sdk';
 import connextLogo from 'url:../../public/connext-white-logo.webp';
 import { useWallet } from '../contexts/Wallet';
 import { Wallet } from './Wallet';
+import { useChains } from '../contexts/Chains';
+import { useAssets } from '../contexts/Assets';
+import { useSdk } from '../contexts/Sdk';
+import { ChainConfig } from '@connext/nxtp-sdk/dist/config';
 
 export const Header = () => {
     const walletContext = useWallet();
+    const {
+        state: { chains }
+    } = useChains();
+    const {
+        state: { assets }
+    } = useAssets();
+
+    const sdkContext = useSdk();
 
     const { web3_provider, address } = { ...walletContext.state };
+
+    // init sdk
+    useEffect(() => {
+        const init = async () => {
+            if (!(chains && assets)) {
+                return;
+            }
+
+            const chains_config: Record<string, ChainConfig> = {};
+            for (const chain_data of chains) {
+                const { chain_id, domain_id, provider_params } = { ...chain_data };
+
+                const rpc_urls = provider_params?.[0]?.rpcUrls?.filter(url => url) || [];
+
+                if (domain_id) {
+                    chains_config[domain_id] = {
+                        providers: rpc_urls,
+                        assets: assets
+                            .filter(a => a?.contracts?.findIndex(c => c?.chain_id === chain_id) > -1)
+                            .map(a => {
+                                const { name, contracts } = { ...a };
+                                const contract_data = contracts.find(c => c?.chain_id === chain_id);
+                                const { contract_address } = { ...contract_data };
+                                const symbol = contract_data?.symbol || a?.symbol;
+                                return {
+                                    name: name || symbol,
+                                    address: contract_address,
+                                    symbol,
+                                    mainnetEquivalent: undefined
+                                };
+                            })
+                    } as ChainConfig;
+                }
+            }
+            let network: 'testnet' | 'mainnet' | 'local' | undefined = undefined;
+            let environment: 'staging' | 'production' | undefined = undefined;
+
+            if (
+                process.env.PUBLIC_NETWORK === 'testnet' ||
+                process.env.PUBLIC_NETWORK === 'mainnet' ||
+                process.env.PUBLIC_NETWORK === 'local'
+            ) {
+                network = process.env.PUBLIC_NETWORK;
+            } else if (!process.env.PUBLIC_ENVIRONMENT) {
+                console.error('Wrong PUBLIC_NETWORK environment variable');
+            }
+
+            if (process.env.PUBLIC_ENVIRONMENT === 'staging' || process.env.PUBLIC_ENVIRONMENT === 'production') {
+                environment = process.env.PUBLIC_ENVIRONMENT;
+            } else if (!process.env.PUBLIC_ENVIRONMENT) {
+                console.error('Wrong PUBLIC_ENVIRONMENT environment variable');
+            }
+
+            const config: NxtpSdkConfig = {
+                chains: chains_config,
+                logLevel: 'info',
+                network,
+                environment
+            };
+
+            sdkContext.dispatch({
+                type: 'set',
+                payload: await create(config)
+            });
+
+            console.log('[SDK config]', config);
+        };
+
+        init();
+    }, [chains, assets]);
 
     return (
         <div className="py-4 border-b border-slate-900/10 px-8  dark:border-slate-300/10 mx-4 lg:mx-0">

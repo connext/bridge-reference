@@ -1,10 +1,11 @@
 import React from 'react';
+
 import { WalletProvider } from '../contexts/Wallet';
 import { CrossChainTransfer } from '../components/CrossChainTransfer';
 import { Header } from '../components/Header';
 
 import '../styles/main.pcss';
-import { ChainsProvider, useChains } from '../contexts/Chains';
+import { ChainsProvider } from '../contexts/Chains';
 import { AssetsProvider } from '../contexts/Assets';
 import { BalancesProvider } from '../contexts/Balances';
 
