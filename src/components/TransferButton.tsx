@@ -216,7 +216,7 @@ export const TransferButton = ({
             source_chain,
             destination_chain,
             asset,
-            amount: 0
+            amount: undefined
         });
 
         setXcall(undefined);
@@ -310,7 +310,7 @@ export const TransferButton = ({
                             <span className="font-semibold">{source_chain?.name}</span>{' '}
                         </span>
                     </Wallet>
-                ) : !xcall && (amount > source_amount || amount < min_amount || amount <= 0) ? (
+                ) : !xcall && (Number(amount) > source_amount || Number(amount) < min_amount || Number(amount) <= 0) ? (
                     <Alert
                         color="bg-red-400 dark:bg-red-500 text-white text-base"
                         icon={<BiMessageError className="w-4 sm:w-6 h-4 sm:h-6 stroke-current mr-3" />}
@@ -319,11 +319,11 @@ export const TransferButton = ({
                         className="rounded-xl p-4.5"
                     >
                         <span>
-                            {amount > source_amount
+                            {Number(amount) > source_amount
                                 ? 'Insufficient Balance'
-                                : amount < min_amount
+                                : Number(amount) < min_amount
                                 ? 'The transfer amount cannot be less than the transfer fee.'
-                                : amount <= 0
+                                : Number(amount) <= 0
                                 ? 'The transfer amount cannot be equal or less than 0.'
                                 : ''}
                         </span>

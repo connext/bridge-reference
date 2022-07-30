@@ -5,5 +5,5 @@ export interface Bridge {
     source_chain?: Chain;
     destination_chain?: Chain;
     asset?: Asset;
-    amount: number;
+    amount?: number;
 }

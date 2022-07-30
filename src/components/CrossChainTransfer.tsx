@@ -32,7 +32,7 @@ export const CrossChainTransfer = () => {
         source_chain: chains[0],
         destination_chain: chains[1],
         asset: assets[0],
-        amount: 0
+        amount: undefined
     });
 
     // update balances
@@ -162,7 +162,7 @@ export const CrossChainTransfer = () => {
                         type="number"
                         placeholder="0.00"
                         disabled={!bridge.asset}
-                        value={bridge.amount >= 0 ? bridge.amount : ''}
+                        value={typeof bridge.amount === 'number' && bridge.amount >= 0 ? bridge.amount : ''}
                         onChange={e => {
                             const regex = /^[0-9.\b]+$/;
                             let _amount = 0;
