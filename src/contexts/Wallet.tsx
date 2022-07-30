@@ -20,9 +20,9 @@ interface IAppState {
     provider: any;
     web3_provider?: Web3Provider;
     signer: any;
-    chain_id?: string;
+    chain_id?: number;
     address?: string;
-    default_chain_id?: string;
+    default_chain_id?: number;
 }
 
 const initialState: IAppState = {

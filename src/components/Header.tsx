@@ -18,9 +18,12 @@ export const Header = () => {
         state: { assets }
     } = useAssets();
 
-    const sdkContext = useSdk();
+    const {
+        state: { sdk },
+        dispatch
+    } = useSdk();
 
-    const { web3_provider, address } = { ...walletContext.state };
+    const { web3_provider, provider, address, signer } = { ...walletContext.state };
 
     // init sdk
     useEffect(() => {
@@ -81,7 +84,7 @@ export const Header = () => {
                 environment
             };
 
-            sdkContext.dispatch({
+            dispatch({
                 type: 'set',
                 payload: await create(config)
             });
@@ -91,6 +94,27 @@ export const Header = () => {
 
         init();
     }, [chains, assets]);
+
+    useEffect(() => {
+        const update = async () => {
+            if (sdk && address) {
+                if (sdk.nxtpSdkBase) {
+                    await sdk.nxtpSdkBase.changeSignerAddress(address);
+                }
+                if (sdk.nxtpSdkRouter) {
+                    await sdk.nxtpSdkRouter.changeSignerAddress(address);
+                }
+
+                dispatch({
+                    type: 'set',
+                    payload: sdk
+                });
+
+                console.log('[Signer address]', address);
+            }
+        };
+        update();
+    }, [sdk, provider, web3_provider, address, signer]);
 
     return (
         <div className="py-4 border-b border-slate-900/10 px-8  dark:border-slate-300/10 mx-4 lg:mx-0">

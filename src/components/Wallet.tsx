@@ -58,7 +58,7 @@ const providerOptions: IProviderOptions = {
     }
 };
 
-const chainIdToNetwork = (chain_id: string) => {
+const chainIdToNetwork = (chain_id: number) => {
     return {
         1: 'mainnet',
         56: 'binance',
@@ -89,28 +89,16 @@ const chainIdToNetwork = (chain_id: string) => {
 let web3Modal: Web3Modal;
 
 interface Props {
-    chainIdToConnect?: string;
+    connectChainId?: number;
     main?: boolean;
     hidden?: string;
     disabled?: boolean;
-    buttonConnectTitle?: string;
-    buttonConnectClassName?: string;
-    buttonDisconnectTitle?: ReactElement;
-    buttonDisconnectClassName?: string;
+    className?: string;
+    children?: ReactElement;
     onChangeNetwork?: () => void;
 }
 
-export const Wallet = ({
-    chainIdToConnect,
-    main,
-    hidden,
-    disabled = false,
-    buttonConnectTitle,
-    buttonConnectClassName,
-    buttonDisconnectTitle,
-    buttonDisconnectClassName,
-    onChangeNetwork
-}: Props) => {
+export const Wallet = ({ connectChainId, main, hidden, disabled = false, className, onChangeNetwork, children }: Props) => {
     const walletContext = useWallet();
     const chainsContext = useChains();
 
@@ -119,13 +107,13 @@ export const Wallet = ({
 
     const { provider, web3_provider, chain_id } = { ...wallet_data };
 
-    const [defaultChainId, setDefaultChainId] = useState<string>('');
+    const [defaultChainId, setDefaultChainId] = useState<number>();
 
     useEffect(() => {
-        if (chainIdToConnect && chainIdToConnect !== defaultChainId) {
-            setDefaultChainId(chainIdToConnect);
+        if (connectChainId && connectChainId !== defaultChainId) {
+            setDefaultChainId(connectChainId);
         }
-    }, [chainIdToConnect]);
+    }, [connectChainId]);
 
     useEffect(() => {
         if (typeof window !== 'undefined') {
@@ -178,7 +166,7 @@ export const Wallet = ({
             }
 
             web3Modal = new Web3Modal({
-                network: chainIdToNetwork(defaultChainId) || 'mainnet',
+                network: (defaultChainId && chainIdToNetwork(defaultChainId)) || 'mainnet',
                 cacheProvider: true,
                 providerOptions
             });
@@ -229,18 +217,18 @@ export const Wallet = ({
     );
 
     const switchNetwork = async () => {
-        if (chainIdToConnect && chainIdToConnect !== chain_id && provider) {
+        if (connectChainId && connectChainId !== chain_id && provider) {
             try {
                 await provider.request({
                     method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: utils.hexValue(chainIdToConnect) }]
+                    params: [{ chainId: utils.hexValue(connectChainId) }]
                 });
             } catch (error: any) {
                 if (error.code === 4902) {
                     try {
                         await provider.request({
                             method: 'wallet_addEthereumChain',
-                            params: chains?.find(c => c.chain_id.toString() === chainIdToConnect)?.provider_params
+                            params: chains?.find(c => c.chain_id === connectChainId)?.provider_params
                         });
                     } catch (error) {}
                 }
@@ -297,7 +285,7 @@ export const Wallet = ({
         (!hidden && (
             <>
                 {web3_provider ? (
-                    !main && chainIdToConnect ? (
+                    !main && connectChainId ? (
                         <button
                             disabled={disabled}
                             onClick={() => {
@@ -307,37 +295,27 @@ export const Wallet = ({
                                     onChangeNetwork();
                                 }
                             }}
-                            className={
-                                buttonDisconnectClassName ||
-                                'bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 rounded-lg whitespace-nowrap font-medium py-1 px-2'
-                            }
+                            className={className}
                         >
-                            {buttonDisconnectTitle || 'Wrong Network'}
+                            {children || (
+                                <div className="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 rounded-lg whitespace-nowrap font-medium py-1 px-2">
+                                    Switch Network
+                                </div>
+                            )}
                         </button>
                     ) : (
-                        <button
-                            disabled={disabled}
-                            onClick={() => disconnect()}
-                            className={
-                                buttonDisconnectClassName ||
-                                'text-white bg-gray-100 hover:bg-gray-200 dark:bg-red-600 dark:hover:bg-red-700 rounded-lg font-medium py-1 px-2'
-                            }
-                        >
-                            {buttonDisconnectTitle || 'Disconnect'}
+                        <button disabled={disabled} onClick={() => disconnect()} className={className}>
+                            {children || (
+                                <div className="bg-red-500 hover:bg-red-600 dark:bg-red-600 dark:hover:bg-red-700 rounded-lg whitespace-nowrap text-white font-medium py-1 px-2">
+                                    Disconnect
+                                </div>
+                            )}
                         </button>
                     )
                 ) : (
-                    <button
-                        disabled={disabled}
-                        onClick={connect}
-                        className={
-                            buttonConnectClassName ||
-                            'bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg text-white font-medium py-1 px-2'
-                        }
-                        style={buttonConnectClassName?.includes('w-full') ? { width: 'max-content' } : {}}
-                    >
-                        {buttonConnectTitle || (
-                            <div className="flex items-center space-x-1.5">
+                    <button disabled={disabled} onClick={connect} className={className}>
+                        {children || (
+                            <div className="flex items-center space-x-1.5 bg-blue-500 hover:bg-blue-600 dark:bg-blue-600 dark:hover:bg-blue-700 rounded-lg whitespace-nowrap text-white font-medium py-1 px-2">
                                 <span>Connect</span>
                                 <IoWalletOutline size={18} />
                             </div>

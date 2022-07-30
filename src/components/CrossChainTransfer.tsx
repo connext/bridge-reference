@@ -6,18 +6,12 @@ import { SelectChain } from './SelectChain';
 import { Chain } from '../utils/chain';
 import { useChains } from '../contexts/Chains';
 import { useAssets } from '../contexts/Assets';
-import { Asset, Contract as IContract } from '../utils/asset';
+import { Contract as IContract } from '../utils/asset';
 import { SelectAsset } from './SelectAsset';
 import { useWallet } from '../contexts/Wallet';
 import { useBalances } from '../contexts/Balances';
 import { Balance } from './Balance';
-
-interface Bridge {
-    source_chain?: Chain;
-    destination_chain?: Chain;
-    asset?: Asset;
-    amount: number;
-}
+import { Bridge } from '../types/bridge';
 
 export const CrossChainTransfer = () => {
     const balancesContext = useBalances();
@@ -151,7 +145,7 @@ export const CrossChainTransfer = () => {
                 }}
             />
 
-            <div className="grid grid-flow-row grid-cols-5 sm:grid-cols-5 gap-6 pt-8 pb-2">
+            <div className="grid grid-flow-row grid-cols-5 sm:grid-cols-5 gap-6 pt-8 pb-8">
                 <div className="col-span-2 sm:col-span-2 space-y-1">
                     <div className="flex items-center justify-start sm:justify-start space-x-1 sm:space-x-2.5">
                         <span className="text-slate-400 dark:text-white text-sm sm:text-base sm:font-semibold">Amount</span>
@@ -172,7 +166,7 @@ export const CrossChainTransfer = () => {
                     />
                 </div>
             </div>
-            <TransferButton />
+            <TransferButton bridge={bridge} setBridge={setBridge} getBalances={getBalances} />
         </div>
     );
 };

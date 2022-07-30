@@ -13,6 +13,7 @@ export interface Contract {
     chain_id?: number;
     contract_decimals?: number;
     symbol?: string;
+    decimals?: number;
 }
 
 export const getAssets: () => Asset[] = () => testnet_assets;
