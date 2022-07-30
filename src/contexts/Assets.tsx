@@ -1,5 +1,6 @@
 import { useContext } from 'react';
-import { Asset, getAssets } from '../utils/asset';
+import { Asset } from '../types/asset';
+import { getAssets } from '../utils/asset';
 import { createCtx } from '../utils/context';
 
 interface IAppState {

@@ -1,6 +1,7 @@
 import { useContext } from 'react';
-import { Chain, getChains } from '../utils/chain';
+import { getChains } from '../utils/chain';
 import { createCtx } from '../utils/context';
+import { Chain } from '../types/chain';
 
 interface IAppState {
     chains: Chain[];

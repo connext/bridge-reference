@@ -11,7 +11,7 @@ import { Bridge } from '../types/bridge';
 import { Wallet } from './Wallet';
 import { useSdk } from '../contexts/Sdk';
 import { useBalances } from '../contexts/Balances';
-import { Chain } from '../utils/chain';
+import { Chain } from '../types/chain';
 import Alert from './Alert';
 import { constants, FixedNumber, utils } from 'ethers';
 import { XTransferStatus } from '@connext/nxtp-utils';

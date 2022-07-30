@@ -3,10 +3,10 @@ import { constants, Contract, utils, providers } from 'ethers';
 
 import { TransferButton } from './TransferButton';
 import { SelectChain } from './SelectChain';
-import { Chain } from '../utils/chain';
+import { Chain } from '../types/chain';
 import { useChains } from '../contexts/Chains';
 import { useAssets } from '../contexts/Assets';
-import { Contract as IContract } from '../utils/asset';
+import { Contract as IContract } from '../types/asset';
 import { SelectAsset } from './SelectAsset';
 import { useWallet } from '../contexts/Wallet';
 import { useBalances } from '../contexts/Balances';

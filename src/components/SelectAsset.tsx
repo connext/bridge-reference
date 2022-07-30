@@ -1,7 +1,7 @@
 import React from 'react';
 import { useAssets } from '../contexts/Assets';
-import { Asset } from '../utils/asset';
-import { Chain } from '../utils/chain';
+import { Asset } from '../types/asset';
+import { Chain } from '../types/chain';
 
 interface Props {
     disabled?: boolean;

@@ -1,9 +1,7 @@
-import { utils } from 'ethers';
-import { commify } from 'ethers/lib/utils';
 import React from 'react';
 import { useBalances } from '../contexts/Balances';
 import { useWallet } from '../contexts/Wallet';
-import { Asset } from '../utils/asset';
+import { Asset } from '../types/asset';
 
 interface Props {
     chainId: number;

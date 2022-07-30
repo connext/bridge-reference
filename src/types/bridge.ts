@@ -1,5 +1,5 @@
-import { Asset } from '../utils/asset';
-import { Chain } from '../utils/chain';
+import { Asset } from '../types/asset';
+import { Chain } from '../types/chain';
 
 export interface Bridge {
     source_chain?: Chain;

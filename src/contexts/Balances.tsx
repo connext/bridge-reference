@@ -1,5 +1,5 @@
 import { useContext } from 'react';
-import { Contract } from '../utils/asset';
+import { Contract } from '../types/asset';
 import { createCtx } from '../utils/context';
 import { uniqBy, concat } from 'lodash';
 
