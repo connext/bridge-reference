@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { BiMessageError, BiMessageCheck, BiMessageDetail } from 'react-icons/bi';
 import { MdClose } from 'react-icons/md';
+import { FaSpinner } from 'react-icons/fa';
 
 import { useWallet } from '../contexts/Wallet';
 import { useAssets } from '../contexts/Assets';
@@ -13,6 +14,7 @@ import { useBalances } from '../contexts/Balances';
 import { Chain } from '../utils/chain';
 import Alert from './Alert';
 import { constants, FixedNumber, utils } from 'ethers';
+import { XTransferStatus } from '@connext/nxtp-utils';
 
 type Props = {
     bridge: Bridge;
@@ -49,11 +51,11 @@ export const TransferButton = ({
         state: { balances }
     } = useBalances();
 
-    const [approving, setApproving] = useState(false);
+    const [approving, setApproving] = useState<boolean | null>(null);
     const [approveProcessing, setApproveProcessing] = useState(false);
     const [approveResponse, setApproveResponse] = useState<Response>();
 
-    const [xcall, setXcall] = useState();
+    const [xcall, setXcall] = useState<Record<any, any>>();
     const [calling, setCalling] = useState(false);
     const [callProcessing, setCallProcessing] = useState(false);
     const [xcallResponse, setXcallResponse] = useState<Response>();
@@ -81,10 +83,8 @@ export const TransferButton = ({
     };
 
     const call = async () => {
-        setApproving(false);
-        setCalling(false);
-
-        let success = false;
+        setApproving(null);
+        setCalling(true);
 
         if (sdk) {
             const source_chain_data = chains?.find(c => c?.id === source_chain?.id);
@@ -125,6 +125,7 @@ export const TransferButton = ({
 
                 if (approve_request) {
                     setApproving(true);
+
                     const approve_response = await signer.sendTransaction(approve_request);
                     const tx_hash = approve_response?.hash;
 
@@ -177,18 +178,22 @@ export const TransferButton = ({
                         }
                         const xcall_response = await signer.sendTransaction(xcall_request);
                         const tx_hash = xcall_response?.hash;
+
                         setCallProcessing(true);
+
                         const xcall_receipt = await signer.provider.waitForTransaction(tx_hash);
+
                         setXcall(xcall_receipt);
+
                         failed = !xcall_receipt?.status;
+
                         setXcallResponse({
                             status: failed ? 'failed' : 'success',
                             message: failed
                                 ? 'Failed to send transaction'
-                                : `${source_symbol} transfer detected, waiting for execution.`,
+                                : `${source_symbol} transfer detected, waiting for execution`,
                             tx_hash
                         });
-                        success = true;
                     }
                 } catch (error: any) {
                     setXcallResponse({
@@ -216,7 +221,7 @@ export const TransferButton = ({
 
         setXcall(undefined);
 
-        setApproving(false);
+        setApproving(null);
         setApproveProcessing(false);
         setApproveResponse(undefined);
 
@@ -227,6 +232,55 @@ export const TransferButton = ({
         getBalances(source_chain);
         getBalances(destination_chain);
     };
+
+    useEffect(() => {
+        const update = async () => {
+            if (sdk && address && xcall) {
+                if (!xcall?.transfer_id && xcall?.transactionHash) {
+                    let transfer;
+                    try {
+                        const response = await sdk.nxtpSdkUtils.getTransferByTransactionHash(xcall.transactionHash);
+                        transfer = response?.find((t: any) => t?.xcall_transaction_hash === xcall.transactionHash);
+                    } catch (error) {}
+                    try {
+                        const response = await sdk.nxtpSdkUtils.getTransfersByUser({ userAddress: address });
+                        transfer = response?.find((t: any) => t?.xcall_transaction_hash === xcall.transactionHash);
+                    } catch (error) {}
+                    if (
+                        [XTransferStatus.Executed, XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow].includes(
+                            transfer?.status
+                        )
+                    ) {
+                        reset();
+                    } else if (transfer?.transfer_id) {
+                        setXcall({
+                            ...xcall,
+                            transfer_id: transfer.transfer_id
+                        });
+                    }
+                } else if (xcall.transfer_id) {
+                    const response = await sdk.nxtpSdkUtils.getTransferById(xcall.transfer_id);
+
+                    const transfer = response?.find((t: any) => t?.transfer_id === xcall.transfer_id);
+
+                    if (
+                        [XTransferStatus.Executed, XTransferStatus.CompletedFast, XTransferStatus.CompletedSlow].includes(
+                            transfer?.status
+                        )
+                    ) {
+                        reset();
+                    }
+                }
+            }
+        };
+        update();
+
+        const interval = setInterval(() => update(), 10000);
+
+        return () => {
+            clearInterval(interval);
+        };
+    }, [sdk, address, xcall]);
 
     const source_contract = asset?.contracts?.find(c => c?.chain_id === source_chain?.chain_id);
     const source_balance = balances?.[source_chain!.chain_id]?.find(
@@ -239,7 +293,7 @@ export const TransferButton = ({
     const wrong_chain = chain_id !== source_chain?.chain_id && !xcall;
     const is_walletconnect = provider?.constructor?.name === 'WalletConnectProvider';
 
-    const disabled = calling || approving;
+    const disabled = calling || Boolean(approving);
 
     return (
         <>
@@ -287,7 +341,7 @@ export const TransferButton = ({
                         } rounded-xl flex items-center justify-center text-white text-base sm:text-lg py-3 sm:py-4 px-2 sm:px-3`}
                     >
                         <span className="flex items-center justify-center space-x-1.5">
-                            {(calling || approving) && <span>Loading</span>}
+                            {(calling || approving) && <FaSpinner className="spinner" />}
                             <span>
                                 {calling
                                     ? approving
@@ -323,7 +377,7 @@ export const TransferButton = ({
                                 ) : r?.status === 'success' ? (
                                     xcallResponse ? (
                                         <div className="mr-3">
-                                            <p>Loading...</p>
+                                            <FaSpinner className="spinner" />
                                         </div>
                                     ) : (
                                         <BiMessageCheck className="w-4 sm:w-6 h-4 sm:h-6 stroke-current mr-3" />

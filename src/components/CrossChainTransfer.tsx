@@ -161,8 +161,23 @@ export const CrossChainTransfer = () => {
                     <input
                         type="number"
                         placeholder="0.00"
-                        min="0"
-                        className="w-36 sm:w-48 bg-slate-50 focus:bg-slate-100 dark:bg-slate-900 dark:focus:bg-slate-700  border-0 focus:ring-0 rounded-md sm:text-lg font-semibold text-right py-1.5 sm:py-2 px-2 sm:px-3"
+                        disabled={!bridge.asset}
+                        value={bridge.amount >= 0 ? bridge.amount : ''}
+                        onChange={e => {
+                            const regex = /^[0-9.\b]+$/;
+                            let _amount = 0;
+                            if (e.target.value === '' || regex.test(e.target.value)) {
+                                _amount = Number(e.target.value);
+                            }
+                            _amount = _amount < 0 ? 0 : _amount;
+
+                            setBridge({
+                                ...bridge,
+                                amount: _amount && !isNaN(_amount) ? Number(_amount) : _amount
+                            });
+                        }}
+                        onKeyDown={e => ['e', 'E', '-'].includes(e.key) && e.preventDefault()}
+                        className="w-36 sm:w-48 bg-slate-50 focus:bg-slate-100 dark:bg-slate-900 dark:focus:bg-slate-700 border-0 focus:ring-0 rounded-xl sm:text-lg font-semibold text-right py-1.5 sm:py-2 px-2 sm:px-3"
                     />
                 </div>
             </div>
