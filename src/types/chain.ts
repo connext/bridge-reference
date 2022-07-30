@@ -1,15 +1,15 @@
 export interface Chain {
     id: string;
     chain_id: number;
-    domain_id: string;
+    domain_id?: string;
     name: string;
     short_name: string;
     provider_params: ProviderParam[];
     explorer: Explorer;
     image: string;
     color: string;
-    website: string;
-    coingecko_id: string;
+    website?: string;
+    coingecko_id?: string;
     group: string;
 }
 

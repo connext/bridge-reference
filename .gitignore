@@ -25,9 +25,5 @@ yarn-error.log*
 dist
 .parcel-cache
 
-# dotenv environment variables file
-.env
-.env.test
-
 # VisualStudioCode #
 .vscode/*

@@ -2,7 +2,7 @@ export interface Asset {
     id: string;
     symbol: string;
     name: string;
-    is_stablecoin: boolean;
+    is_stablecoin?: boolean;
     contracts: Contract[];
 }
 
