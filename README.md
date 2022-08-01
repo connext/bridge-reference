@@ -1,3 +1,6 @@
+# Start locally project
+NODE_ENV=test yarn start
+
 # bridge-reference
 A reference implementation to bridging ERC-20 tokens across EVM chains via Connext
 
